@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
+import ThemeSwitcher from '../components/ThemeSwitcher';
 
 export default function Home() {
   const { user } = useAuth();
@@ -11,7 +12,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <ThemeSwitcher />
+      </div>
       <h1 className="text-4xl font-bold mb-8">♞ Checkers Pro</h1>
       {!user ? (
         <button onClick={login} className="bg-blue-600 text-white px-6 py-3 rounded-xl text-lg">
@@ -19,12 +23,14 @@ export default function Home() {
         </button>
       ) : (
         <div className="space-y-4 text-center">
-          <p>Привет, {user.user_metadata?.full_name || user.email}!</p>
+          <p>Привет, {user.user_metadata?.username || user.email}!</p>
           <div className="grid grid-cols-2 gap-4">
             <button onClick={() => router.push('/game/ai')} className="btn">🤖 Против ИИ</button>
             <button onClick={() => router.push('/game/create')} className="btn">👥 Игра с другом</button>
             <button onClick={() => router.push('/game/matchmaking')} className="btn">🎲 Быстрая игра</button>
             <button onClick={() => router.push('/leaderboard')} className="btn">🏆 Лидерборд</button>
+            <button onClick={() => router.push('/friends')} className="btn">👫 Друзья</button>
+            <button onClick={() => router.push('/profile')} className="btn">👤 Профиль</button>
           </div>
         </div>
       )}

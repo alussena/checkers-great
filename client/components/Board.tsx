@@ -9,9 +9,17 @@ interface BoardProps {
   legalMoves: Move[];
   onSquareClick: (r: number, c: number) => void;
   lastMove?: { from: [number, number]; to: [number, number] } | null;
+  flipped: boolean;
 }
 
-export default function Board({ board, selected, legalMoves, onSquareClick, lastMove }: BoardProps) {
+export default function Board({
+  board,
+  selected,
+  legalMoves,
+  onSquareClick,
+  lastMove,
+  flipped,
+}: BoardProps) {
   const { theme } = useTheme();
 
   const renderSquare = (r: number, c: number) => {
@@ -39,11 +47,16 @@ export default function Board({ board, selected, legalMoves, onSquareClick, last
     );
   };
 
+
+  const rows = Array.from({ length: 8 }, (_, r) =>
+    Array.from({ length: 8 }, (_, c) =>
+      renderSquare(flipped ? 7 - r : r, flipped ? 7 - c : c)
+    )
+  );
+
   return (
     <div className="grid grid-cols-8 w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] border-4 border-gray-800 rounded-lg overflow-hidden">
-      {Array.from({ length: 8 }).map((_, r) =>
-        Array.from({ length: 8 }).map((_, c) => renderSquare(r, c))
-      )}
+      {rows}
     </div>
   );
 }

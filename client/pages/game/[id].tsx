@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabaseClient';
 import Board from '../../components/Board';
 import Chat from '../../components/Chat';
 import GameStatus from '../../components/GameStatus';
+import ThemeSwitcher from '../../components/ThemeSwitcher';
 import { useAuth } from '../../context/AuthContext';
 import { Move } from '../../lib/types';
 
@@ -28,18 +29,12 @@ export default function GamePage() {
   const [board, setBoard] = useState<number[][]>(INITIAL_BOARD);
   const [selected, setSelected] = useState<[number, number] | null>(null);
   const [legalMoves, setLegalMoves] = useState<Move[]>([]);
-  const [lastMove, setLastMove] = useState<{
-    from: [number, number];
-    to: [number, number];
-  } | null>(null);
+  const [lastMove, setLastMove] = useState<{ from: [number, number]; to: [number, number] } | null>(null);
 
   const [showColorChoice, setShowColorChoice] = useState(false);
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
 
-  // Определяем цвет игрока
-  const myColor = user && game
-    ? (user.id === game.players?.white?.id ? 'white' : 'black')
-    : null;
+  const myColor = user && game ? (user.id === game.players?.white?.id ? 'white' : 'black') : null;
 
   useEffect(() => {
     if (!id || !user) return;
@@ -52,8 +47,6 @@ export default function GamePage() {
 
       socket.auth = { token };
       socket.connect();
-
-      // Отправляем аутентификацию (сервер примет через middleware)
       socket.emit('authenticate', token);
 
       if (id === 'matchmaking') {
@@ -61,7 +54,6 @@ export default function GamePage() {
       } else if (id !== 'ai') {
         socket.emit('joinPrivateGame', id);
       } else {
-        // Игра с ИИ: показываем выбор цвета
         setShowColorChoice(true);
       }
     });
@@ -94,11 +86,7 @@ export default function GamePage() {
     if (playerColor === 'random') {
       chosenColor = Math.random() < 0.5 ? 'white' : 'black';
     }
-    socket.emit('createAIGame', {
-      difficulty: aiDifficulty,
-      playerColor: chosenColor,
-    });
-    // Локальное состояние для немедленного отображения
+    socket.emit('createAIGame', { difficulty: aiDifficulty, playerColor: chosenColor });
     setGame({
       id: 'ai',
       board: INITIAL_BOARD,
@@ -161,32 +149,19 @@ export default function GamePage() {
         <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl text-center">
           <h2 className="text-2xl font-bold mb-6">Выберите цвет</h2>
           <div className="flex flex-col gap-4 mb-6">
-            <button
-              onClick={() => startAIGame('white')}
-              className="bg-white text-black font-semibold py-3 px-8 rounded-xl border-2 border-gray-300 hover:bg-gray-100"
-            >
+            <button onClick={() => startAIGame('white')} className="bg-white text-black font-semibold py-3 px-8 rounded-xl border-2 border-gray-300 hover:bg-gray-100">
               ♟️ Играть белыми
             </button>
-            <button
-              onClick={() => startAIGame('black')}
-              className="bg-black text-white font-semibold py-3 px-8 rounded-xl border-2 border-gray-600 hover:bg-gray-800"
-            >
+            <button onClick={() => startAIGame('black')} className="bg-black text-white font-semibold py-3 px-8 rounded-xl border-2 border-gray-600 hover:bg-gray-800">
               ♟️ Играть чёрными
             </button>
-            <button
-              onClick={() => startAIGame('random')}
-              className="bg-gradient-to-r from-gray-100 to-gray-300 text-black font-semibold py-3 px-8 rounded-xl border-2 border-gray-400 hover:from-gray-200"
-            >
+            <button onClick={() => startAIGame('random')} className="bg-gradient-to-r from-gray-100 to-gray-300 text-black font-semibold py-3 px-8 rounded-xl border-2 border-gray-400 hover:from-gray-200">
               🎲 Случайный цвет
             </button>
           </div>
           <div className="flex items-center gap-2 justify-center">
             <span className="text-sm">Сложность:</span>
-            <select
-              value={aiDifficulty}
-              onChange={(e) => setAiDifficulty(e.target.value as any)}
-              className="border rounded px-2 py-1"
-            >
+            <select value={aiDifficulty} onChange={(e) => setAiDifficulty(e.target.value as any)} className="border rounded px-2 py-1">
               <option value="easy">Легко</option>
               <option value="medium">Средне</option>
               <option value="hard">Сложно</option>
@@ -199,6 +174,9 @@ export default function GamePage() {
 
   return (
     <div className="flex flex-col items-center p-4">
+      <div className="w-full max-w-md flex justify-end mb-2">
+        <ThemeSwitcher />
+      </div>
       <GameStatus game={game} user={user} />
       <Board
         board={board}
@@ -206,6 +184,7 @@ export default function GamePage() {
         legalMoves={legalMoves}
         onSquareClick={handleSquareClick}
         lastMove={lastMove}
+        flipped={myColor === 'black'} // переворот для чёрных
       />
       <Chat gameId={game?.id} gameType={game?.gameType} />
     </div>
