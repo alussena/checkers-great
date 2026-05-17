@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --board-dark: #B58863;
+  --board-light: #F0D9B5;
+  --piece-black: #000000;
+  --piece-white: #FFFFFF;
+}
+
+.theme-default {
+  --board-dark: #B58863;
+  --board-light: #F0D9B5;
+}
+
+.theme-bw {
+  --board-dark: #000000;
+  --board-light: #FFFFFF;
+}
+
+.theme-green {
+  --board-dark: #769656;
+  --board-light: #EEEED2;
+}
+
+.theme-pink {
+  --board-dark: #FF69B4;
+  --board-light: #FFFFFF;
+}
